@@ -4,75 +4,87 @@ export const getMarathonSchedule = (): Block[] => {
     return [
         {
             id: crypto.randomUUID(),
-            type: 'Study',
+            type: 'study',
+            mode: 'pomodoro',
             title: 'Block 1 — Physics (Deep Work)',
-            durationMinutes: 360, // 6 hours
+            durationMinutes: 360,
             startTime: '05:30',
             endTime: '11:30',
-            pomodorosCount: 6,
-            workDuration: 50,
-            breakDuration: 10,
+            pomodoroConfig: {
+                cycles: 6,
+                workDuration: 50,
+                breakDuration: 10,
+            },
             subjects: ['Laws of Motion', 'Work, Energy', 'Mechanics of Fluids'],
             notes: ['“Draw diagrams first. Units mandatory.”', 'Emphasis: Derivations'],
-            isMarathonBlock: true
+            completed: false
         },
         {
             id: crypto.randomUUID(),
-            type: 'Fitness',
+            type: 'fitness',
+            mode: 'time-range',
             title: "Fitness — Active Recovery",
-            durationMinutes: 45, // 11:30 - 12:15 = 45 mins
+            durationMinutes: 45,
             startTime: '11:30',
             endTime: '12:15',
             notes: ['Tree Impact: Neutral', 'Study Disabled: Yes'],
-            isMarathonBlock: true
+            completed: false
         },
         {
             id: crypto.randomUUID(),
-            type: 'Prayer',
+            type: 'prayer',
+            mode: 'time-range',
             title: "Jumu'ah — Spiritual Reset",
-            durationMinutes: 90, // 12:15 - 01:45 = 1 hour 30 mins
+            durationMinutes: 90,
             startTime: '12:15',
-            endTime: '13:45', // 24-hr format
+            endTime: '13:45',
             notes: ['No Pomodoro tracking', 'No productivity scoring impact'],
-            isMarathonBlock: true
+            completed: false
         },
         {
             id: crypto.randomUUID(),
-            type: 'Study',
+            type: 'study',
+            mode: 'pomodoro',
             title: 'Block 2 — CS & Chemistry',
-            durationMinutes: 240, // 01:45 PM - 05:45 PM = 4 hours
+            durationMinutes: 240,
             startTime: '13:45',
             endTime: '17:45',
-            pomodorosCount: 4,
-            workDuration: 50,
-            breakDuration: 10,
+            pomodoroConfig: {
+                cycles: 4,
+                workDuration: 50,
+                breakDuration: 10,
+            },
             subjects: ['Computer Science: Control Statements', 'Chemistry: Chemical Bonding'],
             notes: ['“Minimum 5 problems per Pomodoro.”'],
-            isMarathonBlock: true
+            completed: false
         },
         {
             id: crypto.randomUUID(),
-            type: 'Break',
+            type: 'break',
+            mode: 'time-range',
             title: "Iftar — Recharge Window",
-            durationMinutes: 165, // 05:45 PM - 08:30 PM = 2 hours 45 mins
+            durationMinutes: 165,
             startTime: '17:45',
             endTime: '20:30',
             notes: ['No Pomodoros', 'Tree Impact: Neutral'],
-            isMarathonBlock: true
+            completed: false
         },
         {
             id: crypto.randomUUID(),
-            type: 'Study',
+            type: 'study',
+            mode: 'pomodoro',
             title: 'Block 3 — Night Rider Session',
-            durationMinutes: 240, // 08:30 PM - 12:30 AM = 4 hours
+            durationMinutes: 240,
             startTime: '20:30',
             endTime: '00:30',
-            pomodorosCount: 4,
-            workDuration: 50,
-            breakDuration: 10,
+            pomodoroConfig: {
+                cycles: 4,
+                workDuration: 50,
+                breakDuration: 10,
+            },
             subjects: ['Organic Chemistry: Hydrocarbons, Ozonolysis', 'English: Summaries'],
             notes: ['“Focus on retention, not speed.”'],
-            isMarathonBlock: true
+            completed: false
         }
     ];
 };

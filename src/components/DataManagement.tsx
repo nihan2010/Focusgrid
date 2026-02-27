@@ -39,11 +39,11 @@ export const DataManagement: React.FC = () => {
                 chapters: b.subjects,
                 notes: b.notes,
                 completed: exportClean ? false : b.completed,
-                ...(b.isMarathonBlock && {
+                ...(b.mode === 'pomodoro' && b.pomodoroConfig && {
                     pomodoro: {
-                        workDuration: b.workDuration,
-                        breakDuration: b.breakDuration,
-                        cycles: b.pomodorosCount
+                        workDuration: b.pomodoroConfig.workDuration,
+                        breakDuration: b.pomodoroConfig.breakDuration,
+                        cycles: b.pomodoroConfig.cycles
                     }
                 })
             }))
@@ -69,7 +69,7 @@ export const DataManagement: React.FC = () => {
 
         const freshData = {
             blocks: blocks,
-            totalPomodoros: blocks.reduce((sum, b) => sum + (b.isMarathonBlock ? (b.pomodorosCount ?? 1) : 0), 0),
+            totalPomodoros: blocks.reduce((sum, b) => sum + (b.mode === 'pomodoro' && b.pomodoroConfig ? b.pomodoroConfig.cycles : 0), 0),
             completedPomodoros: blocks.filter(b => b.completed).length,
         };
 
@@ -128,18 +128,25 @@ The JSON must follow this exact schema:
 
 {
   "date": "YYYY-MM-DD",
+  "meta": {
+    "mode": "marathon",
+    "hardMode": true
+  },
   "blocks": [
     {
+      "id": "unique-uuid-here",
       "title": "Block Title",
-      "type": "study|break|misc", 
-      "startTime": "HH:MM", 
+      "type": "study|break|fitness|prayer|custom",
+      "mode": "pomodoro|time-range",
+      "startTime": "HH:MM",
       "endTime": "HH:MM",
-      "subjects": ["Math", "Physics"], 
-      "notes": ["Read chapter 5"], 
-      "isMarathonBlock": true, 
-      "workDuration": 50, 
-      "breakDuration": 10,
-      "pomodorosCount": 1 
+      "chapters": ["Math", "Physics"],
+      "notes": ["Read chapter 5"],
+      "pomodoro": {
+        "workDuration": 50,
+        "breakDuration": 10,
+        "cycles": 4
+      }
     }
   ]
 }

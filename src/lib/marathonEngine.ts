@@ -27,37 +27,37 @@ export const getMarathonState = (blocks: Block[], now: Date): MarathonState | nu
         const end = parseTime(block.endTime, now);
 
         if (now >= start && now < end) {
-            // We are in this block
-            if (block.pomodorosCount && block.workDuration && block.breakDuration) {
-                const cycleMs = (block.workDuration + block.breakDuration) * 60000;
+            if (block.mode === 'pomodoro' && block.pomodoroConfig) {
+                const config = block.pomodoroConfig;
+                const cycleMs = (config.workDuration + config.breakDuration) * 60000;
                 const elapsedMs = now.getTime() - start.getTime();
 
                 const cycleIndex = Math.floor(elapsedMs / cycleMs);
                 const msInCycle = elapsedMs % cycleMs;
 
-                const workMs = block.workDuration * 60000;
+                const workMs = config.workDuration * 60000;
                 const isWorkPhase = msInCycle < workMs;
 
                 const phase = isWorkPhase ? 'work' : 'break';
                 const timeLeftMs = isWorkPhase ? (workMs - msInCycle) : (cycleMs - msInCycle);
-                const durationMinutes = isWorkPhase ? block.workDuration : block.breakDuration;
+                const durationMinutes = isWorkPhase ? config.workDuration : config.breakDuration;
 
-                const targetPomodoroIndex = Math.min(cycleIndex, block.pomodorosCount - 1);
+                const targetPomodoroIndex = Math.min(cycleIndex, config.cycles - 1);
 
                 let sessionName = '';
                 let nextSessionName = '';
 
                 if (isWorkPhase) {
                     sessionName = `P${targetPomodoroIndex + 1} — Work`;
-                    if (targetPomodoroIndex < block.pomodorosCount - 1) {
-                        nextSessionName = `Break ${targetPomodoroIndex + 1} (${block.breakDuration}m)`;
+                    if (targetPomodoroIndex < config.cycles - 1) {
+                        nextSessionName = `Break ${targetPomodoroIndex + 1} (${config.breakDuration}m)`;
                     } else {
                         nextSessionName = 'End of Block';
                     }
                 } else {
-                    if (targetPomodoroIndex < block.pomodorosCount - 1) {
+                    if (targetPomodoroIndex < config.cycles - 1) {
                         sessionName = `Break ${targetPomodoroIndex + 1}`;
-                        nextSessionName = `P${targetPomodoroIndex + 2} — Work (${block.workDuration}m)`;
+                        nextSessionName = `P${targetPomodoroIndex + 2} — Work (${config.workDuration}m)`;
                     } else {
                         // The last 10 minutes (or break duration) after the final pomodoro
                         sessionName = `Transition Buffer`;
@@ -77,10 +77,11 @@ export const getMarathonState = (blocks: Block[], now: Date): MarathonState | nu
                     nextSessionName
                 };
             } else {
-                // Non-pomodoro block (Fitness, Prayer, Iftar)
+                // Non-pomodoro block (Fitness, Prayer, Iftar, Time-Range)
                 const elapsedMs = now.getTime() - start.getTime();
-                const totalMs = block.durationMinutes * 60000;
-                const timeLeftMs = totalMs - elapsedMs;
+                const totalMs = block.durationMinutes ? block.durationMinutes * 60000 : (end.getTime() - start.getTime());
+                const timeLeftMs = Math.max(0, totalMs - elapsedMs);
+                const durationMinutes = block.durationMinutes ?? Math.floor(totalMs / 60000);
 
                 return {
                     isActive: true,
@@ -89,7 +90,7 @@ export const getMarathonState = (blocks: Block[], now: Date): MarathonState | nu
                     phase: 'work', // Treat as a single block of work
                     timeLeftMs,
                     progressPercent: 100 - (timeLeftMs / totalMs) * 100,
-                    durationMinutes: block.durationMinutes,
+                    durationMinutes,
                     sessionName: block.title,
                     nextSessionName: 'Next Block'
                 };

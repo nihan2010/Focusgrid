@@ -9,7 +9,7 @@ export const OnboardingModal: React.FC<{ onComplete: () => void }> = ({ onComple
 
     const handleUseSample = async () => {
         const sampleBlocks = getMarathonSchedule();
-        const totalPomodoros = sampleBlocks.reduce((sum, b) => sum + (b.isMarathonBlock ? (b.pomodorosCount ?? 1) : 0), 0);
+        const totalPomodoros = sampleBlocks.reduce((sum, b) => sum + (b.mode === 'pomodoro' && b.pomodoroConfig ? b.pomodoroConfig.cycles : 0), 0);
         await useStore.getState().updateToday({
             blocks: sampleBlocks,
             totalPomodoros,

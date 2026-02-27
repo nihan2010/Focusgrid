@@ -46,9 +46,13 @@ const createEmptyDay = (dateStr: string, streak = 0): DayRecord => ({
     reflection: { worked: '', failed: '', improvement: '' },
 });
 
-/** Count total planned pomodoros across all marathon blocks in a day's block list. */
+/** Count total planned progress units (pomodoros or hours) across all study blocks. */
 function countTotalPomodoros(blocks: Block[]): number {
-    return blocks.reduce((sum, b) => sum + (b.isMarathonBlock ? (b.pomodorosCount ?? 1) : 0), 0);
+    return blocks.reduce((sum, b) => {
+        if (b.type !== 'study') return sum;
+        if (b.mode === 'pomodoro') return sum + (b.pomodoroConfig?.cycles || 1);
+        return sum + Math.max(1, Math.ceil((b.durationMinutes || 60) / 60));
+    }, 0);
 }
 
 interface FocusGridState {
@@ -298,8 +302,8 @@ export const useStore = create<FocusGridState>((set, get) => ({
             saveSession({
                 activeBlockId: blockId,
                 startedAt: Date.now(),
-                durationMs: block.durationMinutes * 60 * 1000,
-                phase: block.type === 'Break' ? 'break' : 'work',
+                durationMs: (block.durationMinutes || 50) * 60 * 1000,
+                phase: block.type === 'break' ? 'break' : 'work',
             });
         }
         set({ activeBlockId: blockId, timerRunning: true, isMiniPlayer: settings.floatingTimerEnabled });

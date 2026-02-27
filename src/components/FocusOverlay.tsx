@@ -34,7 +34,7 @@ export const FocusOverlay: React.FC = () => {
         }
 
         // Seed timer: use restored time if available (page reload), otherwise use full block duration
-        const initialMs = restoredTimeMs !== null ? restoredTimeMs : activeBlock.durationMinutes * 60 * 1000;
+        const initialMs = restoredTimeMs !== null ? restoredTimeMs : (activeBlock.durationMinutes || 50) * 60 * 1000;
         if (restoredTimeMs !== null) clearRestoredTime(); // consume it — only seed once
         setTimeLeftMs(initialMs);
 
@@ -68,7 +68,7 @@ export const FocusOverlay: React.FC = () => {
 
         if (!isMarathonActive) {
             // Fire notification
-            if (activeBlock.type === 'Break') {
+            if (activeBlock.type === 'break') {
                 notificationManager.notifyBreakEnd();
                 if (settings.hardMode) notificationManager.startHardModeAlert(activeBlock.title, 'Break Over');
             } else {
@@ -77,22 +77,22 @@ export const FocusOverlay: React.FC = () => {
             }
 
             triggerAlarm({
-                title: activeBlock.type === 'Break' ? 'Break Over' : 'Pomodoro Complete',
-                subtitle: activeBlock.type === 'Break' ? 'Time to execute.' : 'Take a well-deserved rest.',
-                eventType: activeBlock.type === 'Break' ? 'breakEnd' : 'workEnd'
+                title: activeBlock.type === 'break' ? 'Break Over' : 'Pomodoro Complete',
+                subtitle: activeBlock.type === 'break' ? 'Time to execute.' : 'Take a well-deserved rest.',
+                eventType: activeBlock.type === 'break' ? 'breakEnd' : 'workEnd'
             });
 
             if (today) {
                 updateBlock('today', activeBlock.id, { completed: true });
 
-                if (activeBlock.type !== 'Break') {
+                if (activeBlock.type !== 'break') {
                     updateToday({
                         completedPomodoros: today.completedPomodoros + 1,
-                        totalStudyMinutes: today.totalStudyMinutes + activeBlock.durationMinutes
+                        totalStudyMinutes: today.totalStudyMinutes + (activeBlock.durationMinutes || 0)
                     });
                 } else {
                     updateToday({
-                        totalBreakMinutes: today.totalBreakMinutes + activeBlock.durationMinutes
+                        totalBreakMinutes: today.totalBreakMinutes + (activeBlock.durationMinutes || 0)
                     });
                 }
             }
@@ -138,7 +138,7 @@ export const FocusOverlay: React.FC = () => {
     const activeTimeLeftMs = isMarathonActive ? (marathonState?.timeLeftMs || 0) : timeLeftMs;
     const progressPercent = isMarathonActive
         ? (marathonState?.progressPercent || 0)
-        : 100 - (activeTimeLeftMs / (activeBlock.durationMinutes * 60000)) * 100;
+        : 100 - (activeTimeLeftMs / ((activeBlock.durationMinutes || 50) * 60000)) * 100;
 
     const minutes = Math.floor(activeTimeLeftMs / 60000);
     const seconds = Math.floor((activeTimeLeftMs % 60000) / 1000);

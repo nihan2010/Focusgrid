@@ -18,7 +18,7 @@ export const Today: React.FC<{ setActiveTab?: (t: string) => void }> = ({ setAct
     }
 
     const safeBlocks = today.blocks || [];
-    const isMarathon = safeBlocks.some(b => b.isMarathonBlock);
+    const isMarathon = safeBlocks.some(b => b.mode === 'pomodoro' && b.pomodoroConfig);
     const currentIndex = marathonState ? safeBlocks.findIndex(b => b.id === marathonState.blockId) : -1;
     const currentBlock = currentIndex >= 0 ? safeBlocks[currentIndex] : null;
 

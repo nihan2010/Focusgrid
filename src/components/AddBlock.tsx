@@ -13,11 +13,11 @@ export const AddBlock: React.FC<AddBlockProps> = ({ targetDay, onCancel }) => {
 
     // Core Block Settings
     const [title, setTitle] = useState('');
-    const [type, setType] = useState<Block['type']>('Study');
+    const [type, setType] = useState<Block['type']>('study');
     const [durationMinutes, setDurationMinutes] = useState(50);
 
     // Pomodoro settings (Only for Study / Marathon blocks)
-    const [isMarathonBlock, setIsMarathonBlock] = useState(type === 'Study');
+    const [isMarathonBlock, setIsMarathonBlock] = useState(type === 'study');
     const [pomodorosCount, setPomodorosCount] = useState(1);
     const [workDuration, setWorkDuration] = useState(50);
     const [breakDuration, setBreakDuration] = useState(10);
@@ -88,7 +88,7 @@ export const AddBlock: React.FC<AddBlockProps> = ({ targetDay, onCancel }) => {
 
     // Auto-update default Marathon status
     React.useEffect(() => {
-        if (type === 'Study') setIsMarathonBlock(true);
+        if (type === 'study') setIsMarathonBlock(true);
         else setIsMarathonBlock(false);
     }, [type]);
 

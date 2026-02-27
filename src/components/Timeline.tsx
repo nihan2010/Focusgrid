@@ -25,9 +25,9 @@ export const Timeline: React.FC<TimelineProps> = ({ isToday }) => {
                         onClick={() => {
                             // Quick start default template
                             const defaultBlocks: Block[] = [
-                                { id: crypto.randomUUID(), title: 'Deep Work Session', type: 'Study', durationMinutes: 50 },
-                                { id: crypto.randomUUID(), title: 'Short Break', type: 'Break', durationMinutes: 10 },
-                                { id: crypto.randomUUID(), title: 'Deep Work Session', type: 'Study', durationMinutes: 50 },
+                                { id: crypto.randomUUID(), title: 'Deep Work Session', type: 'study', mode: 'pomodoro', pomodoroConfig: { cycles: 1, workDuration: 50, breakDuration: 10 }, durationMinutes: 50 },
+                                { id: crypto.randomUUID(), title: 'Short Break', type: 'break', mode: 'time-range', durationMinutes: 10 },
+                                { id: crypto.randomUUID(), title: 'Deep Work Session', type: 'study', mode: 'pomodoro', pomodoroConfig: { cycles: 1, workDuration: 50, breakDuration: 10 }, durationMinutes: 50 },
                             ];
                             defaultBlocks.forEach(b => addBlock(target, b));
                         }}

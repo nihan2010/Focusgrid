@@ -203,7 +203,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = (props) => {
         e.currentTarget.releasePointerCapture(e.pointerId);
     };
 
-    const isBreak = props.isMarathonActive ? props.marathonState?.phase === 'break' : props.activeBlock.type === 'Break';
+    const isBreak = props.isMarathonActive ? props.marathonState?.phase === 'break' : props.activeBlock.type === 'break';
     const phaseLabel = props.isMarathonActive
         ? (isBreak ? 'Break' : `Pomodoro ${props.marathonState?.pomodoroIndex ? props.marathonState.pomodoroIndex + 1 : 1}`)
         : props.activeBlock.type;
