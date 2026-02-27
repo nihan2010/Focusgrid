@@ -1,0 +1,1 @@
+﻿vite.config.ts(4,1): error TS6133: 'VitePWA' is declared but its value is never read.

@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+/* ─── Design Tokens ─────────────────────────────────────────── */
+@theme {
+  /* Charcoal palette (used in dark mode) */
+  --color-charcoal-50: #f4f4f5;
+  --color-charcoal-800: #27272a;
+  --color-charcoal-900: #18181b;
+  --color-charcoal-950: #09090b;
+  /* Accent */
+  --color-accent-500: #10b981;
+  --color-accent-600: #059669;
+  /* Surface tokens — overridden per-theme below */
+  --surface-bg: #09090b;
+  --surface-card: #18181b;
+  --surface-border: rgba(255, 255, 255, 0.07);
+  --surface-text: #f1f5f9;
+  --surface-muted: #a1a1aa;
+}
+
+/* ─── Dark Mode (default + explicit .dark class) ─────────────── */
+:root,
+.dark {
+  color-scheme: dark;
+  --surface-bg: #09090b;
+  --surface-card: #18181b;
+  --surface-border: rgba(255, 255, 255, 0.07);
+  --surface-text: #f1f5f9;
+  --surface-muted: #71717a;
+}
+
+/* ─── Light Mode ─────────────────────────────────────────────── */
+.light,
+:root:not(.dark) {
+  color-scheme: light;
+  --surface-bg: #f1f5f9;
+  --surface-card: #ffffff;
+  --surface-border: rgba(0, 0, 0, 0.08);
+  --surface-text: #0f172a;
+  --surface-muted: #64748b;
+}
+
+/* ─── Base ───────────────────────────────────────────────────── */
+@layer base {
+
+  html,
+  body {
+    background-color: var(--surface-bg);
+    color: var(--surface-text);
+    @apply antialiased;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Scrollbar — adapts to theme */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--surface-border);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-muted);
+  }
+}
+
+/* ─── Component Library ──────────────────────────────────────── */
+@layer utilities {
+
+  /* Dark glass card */
+  .dark .glass-panel {
+    background: rgba(24, 24, 27, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    border-radius: 1rem;
+  }
+
+  /* Light glass card */
+  .light .glass-panel,
+  :root:not(.dark) .glass-panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border-radius: 1rem;
+  }
+
+  /* Fallback/default */
+  .glass-panel {
+    background: rgba(24, 24, 27, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    border-radius: 1rem;
+  }
+
+  /* Dark glass-card */
+  .dark .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.75rem;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .dark .glass-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Light glass-card */
+  .light .glass-card,
+  :root:not(.dark) .glass-card {
+    background: #f8fafc;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 0.75rem;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .light .glass-card:hover,
+  :root:not(.dark) .glass-card:hover {
+    background: #f1f5f9;
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  /* Fallback */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.75rem;
+    transition: background 0.2s ease;
+  }
+
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* ─── Smooth hover scale — never bouncy ─── */
+  .hover-lift {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-1px) scale(1.005);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+}
