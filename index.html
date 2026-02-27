@@ -13,7 +13,7 @@
   <!-- No-FOUC theme init: runs before React, sets dark/light class on <html> -->
   <script>
     (function () {
-      var theme = localStorage.getItem('fg-theme') || 'system';
+      var theme = localStorage.getItem('fg-theme') || 'dark';
       var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       var isDark = theme === 'dark' || (theme === 'system' && prefersDark);
       if (isDark) {

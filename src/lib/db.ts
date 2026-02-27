@@ -1,6 +1,6 @@
 import { openDB } from 'idb';
 import type { DBSchema, IDBPDatabase } from 'idb';
-import type { DayRecord, AppSettings } from '../types';
+import type { DayRecord, AppSettings, Template } from '../types';
 
 interface FocusGridDB extends DBSchema {
     days: {
@@ -11,19 +11,26 @@ interface FocusGridDB extends DBSchema {
         key: string;
         value: AppSettings;
     };
+    templates: {
+        key: string;
+        value: Template;
+    };
 }
 
 let dbPromise: Promise<IDBPDatabase<FocusGridDB>> | null = null;
 
 function getDB() {
     if (!dbPromise) {
-        dbPromise = openDB<FocusGridDB>('FocusGridDB', 1, {
+        dbPromise = openDB<FocusGridDB>('FocusGridDB', 2, {
             upgrade(db) {
                 if (!db.objectStoreNames.contains('days')) {
                     db.createObjectStore('days', { keyPath: 'date' });
                 }
                 if (!db.objectStoreNames.contains('settings')) {
                     db.createObjectStore('settings');
+                }
+                if (!db.objectStoreNames.contains('templates')) {
+                    db.createObjectStore('templates', { keyPath: 'id' });
                 }
             },
         });
@@ -46,7 +53,6 @@ export async function getAllDayRecords(): Promise<DayRecord[]> {
     return db ? db.getAll('days') : [];
 }
 
-/** Returns all day records except today and tomorrow, sorted newest-first. */
 export async function getArchivedDayRecords(todayStr: string, tomorrowStr: string): Promise<DayRecord[]> {
     const all = await getAllDayRecords();
     return all
@@ -63,3 +69,20 @@ export async function getSettings(): Promise<AppSettings | undefined> {
     const db = await getDB();
     return db ? db.get('settings', 'app_settings') : undefined;
 }
+
+// --- Templates ---
+export async function getAllTemplates(): Promise<Template[]> {
+    const db = await getDB();
+    return db ? db.getAll('templates') : [];
+}
+
+export async function saveTemplate(template: Template) {
+    const db = await getDB();
+    if (db) await db.put('templates', template);
+}
+
+export async function deleteTemplate(id: string) {
+    const db = await getDB();
+    if (db) await db.delete('templates', id);
+}
+

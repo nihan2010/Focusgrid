@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Inbox, Settings as SettingsIcon, LayoutGrid, Volume2 } from 'lucide-react';
+import { Calendar, Inbox, Settings as SettingsIcon, LayoutGrid, Volume2, HardDriveDownload } from 'lucide-react';
+import { useStore } from '../stores/useStore';
 import { audioManager } from '../lib/audioManager';
 import { Footer } from './Footer';
 
@@ -17,11 +18,30 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
         { id: 'settings', label: 'Settings', icon: SettingsIcon },
     ];
 
+    const { settings, updateSettings, archivedRecords } = useStore();
     const [audioEnabled, setAudioEnabled] = useState(false);
+    const [showBackupBanner, setShowBackupBanner] = useState(false);
 
     useEffect(() => {
         setAudioEnabled(audioManager.isReady);
     }, []);
+
+    useEffect(() => {
+        if (!settings.lastBackupDate) {
+            if (archivedRecords.length > 2) setShowBackupBanner(true);
+        } else {
+            const daysSince = (Date.now() - new Date(settings.lastBackupDate).getTime()) / (1000 * 60 * 60 * 24);
+            if (daysSince >= 7) setShowBackupBanner(true);
+        }
+    }, [settings.lastBackupDate, archivedRecords.length]);
+
+    const handleSnoozeBackup = () => {
+        setShowBackupBanner(false);
+        // Snooze for 3 days by faking a recent backup
+        const snoozeDate = new Date();
+        snoozeDate.setDate(snoozeDate.getDate() - 4); // so 3 days from now it will trigger (since 4 + 3 = 7)
+        updateSettings({ lastBackupDate: snoozeDate.toISOString() });
+    };
 
     const handleEnableAudio = async () => {
         await audioManager.init();
@@ -48,6 +68,29 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
                     >
                         Enable Audio
                     </button>
+                </div>
+            )}
+
+            {/* Weekly Backup Reminder Banner */}
+            {audioEnabled && showBackupBanner && (
+                <div className="absolute top-0 inset-x-0 z-[45] bg-blue-600 text-white px-4 py-3 flex lg:flex-row flex-col items-center justify-center gap-4 shadow-lg animate-in slide-in-from-top-4">
+                    <span className="font-bold flex items-center gap-2 text-sm lg:text-base">
+                        <HardDriveDownload size={18} /> You haven't backed up your JSON data recently!
+                    </span>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => { setShowBackupBanner(false); setActiveTab('settings'); }}
+                            className="bg-white text-blue-600 font-bold px-4 py-1.5 rounded hover:bg-blue-50 transition-colors text-sm"
+                        >
+                            Go to Backup
+                        </button>
+                        <button
+                            onClick={handleSnoozeBackup}
+                            className="bg-white/20 text-white font-medium px-4 py-1.5 rounded hover:bg-white/30 transition-colors text-sm"
+                        >
+                            Snooze
+                        </button>
+                    </div>
                 </div>
             )}
 

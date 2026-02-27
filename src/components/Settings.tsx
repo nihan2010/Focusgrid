@@ -2,6 +2,7 @@ import React from 'react';
 import { useStore } from '../stores/useStore';
 import { useTheme } from '../lib/useTheme';
 import { Sun, Moon, Monitor } from 'lucide-react';
+import { DataManagement } from './DataManagement';
 
 export const Settings: React.FC = () => {
     const { settings, updateSettings } = useStore();
@@ -217,6 +218,11 @@ export const Settings: React.FC = () => {
                                 );
                             })}
                         </div>
+                    </div>
+
+                    {/* Data Management Section */}
+                    <div className="pt-6 border-t" style={{ borderColor: 'var(--surface-border)' }}>
+                        <DataManagement />
                     </div>
                 </div>
             </div>

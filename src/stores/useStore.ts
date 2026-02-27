@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import { format, addDays } from 'date-fns';
-import type { AppSettings, DayRecord, Block, TreeStage } from '../types';
+import type { AppSettings, DayRecord, Block, TreeStage, Template } from '../types';
 import * as db from '../lib/db';
-import { getMarathonSchedule } from '../lib/marathonSchedule';
 import { getMarathonState } from '../lib/marathonEngine';
 import type { MarathonState } from '../lib/marathonEngine';
 import { getCompletionPercent, getTreeStage, computeStreak } from '../lib/treeEngine';
@@ -57,6 +56,7 @@ interface FocusGridState {
     today: DayRecord | null;
     tomorrow: DayRecord | null;
     archivedRecords: DayRecord[];
+    templates: Template[];
     streak: number;
     activeBlockId: string | null;
     timerRunning: boolean;
@@ -79,6 +79,7 @@ interface FocusGridState {
 
     initStore: () => Promise<void>;
     loadArchive: () => Promise<void>;
+    loadTemplates: () => Promise<void>;
     recalculateDailyProgress: () => void;
     updateSettings: (newSettings: Partial<AppSettings>) => Promise<void>;
     updateToday: (updates: Partial<DayRecord>) => Promise<void>;
@@ -86,6 +87,8 @@ interface FocusGridState {
     addBlock: (target: 'today' | 'tomorrow', block: Block) => Promise<void>;
     updateBlock: (target: 'today' | 'tomorrow', blockId: string, updates: Partial<Block>) => Promise<void>;
     removeBlock: (target: 'today' | 'tomorrow', blockId: string) => Promise<void>;
+    saveAsTemplate: (name: string, blocks: Block[]) => Promise<void>;
+    removeTemplate: (id: string) => Promise<void>;
     startSession: (blockId: string) => void;
     stopSession: () => void;
     globalTick: (now: Date) => void;
@@ -97,6 +100,7 @@ export const useStore = create<FocusGridState>((set, get) => ({
     today: null,
     tomorrow: null,
     archivedRecords: [],
+    templates: [],
     streak: 0,
     activeBlockId: null,
     timerRunning: false,
@@ -122,6 +126,12 @@ export const useStore = create<FocusGridState>((set, get) => ({
         const streak = computeStreak(archived, todayStr);
         set({ archivedRecords: archived, streak });
     },
+
+    loadTemplates: async () => {
+        const templates = await db.getAllTemplates();
+        set({ templates });
+    },
+
 
     recalculateDailyProgress: () => {
         const { today } = get();
@@ -157,32 +167,10 @@ export const useStore = create<FocusGridState>((set, get) => ({
 
         // --- Load or create Today ---
         let todayRecord = await db.getDayRecord(todayStr);
-        let isTodayNewOrUnstarted = false;
 
         if (!todayRecord) {
             todayRecord = createEmptyDay(todayStr, streak);
-            isTodayNewOrUnstarted = true;
-        } else {
-            const hasStarted = todayRecord.completedPomodoros > 0 || todayRecord.totalStudyMinutes > 0 || todayRecord.blocks.some(b => b.completed);
-            if (!hasStarted) isTodayNewOrUnstarted = true;
-        }
-
-        if (isTodayNewOrUnstarted) {
-            const marathonBlocks = getMarathonSchedule();
-            todayRecord.blocks = marathonBlocks;
-            todayRecord.totalPomodoros = countTotalPomodoros(marathonBlocks);
-            todayRecord.completionPercentage = 0;
-            todayRecord.treeStage = 'seed';
-            todayRecord.streak = streak;
-
-            // Enforce Hard Mode for Marathon
-            mergedSettings.hardMode = true;
-            mergedSettings.focusTreeEnabled = true;
-            set({ settings: mergedSettings });
-            await db.saveSettings(mergedSettings);
             await db.saveDayRecord(todayRecord);
-        } else {
-            set({ settings: mergedSettings });
         }
 
         // --- Load or create Tomorrow ---
@@ -192,6 +180,8 @@ export const useStore = create<FocusGridState>((set, get) => ({
             await db.saveDayRecord(tomorrowRecord);
         }
 
+        set({ settings: mergedSettings });
+
         set({
             today: todayRecord,
             tomorrow: tomorrowRecord,
@@ -200,6 +190,9 @@ export const useStore = create<FocusGridState>((set, get) => ({
             isInitialized: true,
             _transitionLockDate: todayStr,
         });
+
+        // Also fetch templates
+        get().loadTemplates();
 
         // --- Check for a persisted active session and restore it ---
         const savedSession = loadSession();
@@ -281,6 +274,22 @@ export const useStore = create<FocusGridState>((set, get) => ({
         if (target === 'today') await get().updateToday(updated);
         else await get().updateTomorrow(updated);
     },
+
+    saveAsTemplate: async (name, blocks) => {
+        const newTemplate: Template = {
+            id: crypto.randomUUID(),
+            name,
+            blocks: blocks.map(b => ({ ...b, id: crypto.randomUUID(), completed: false }))
+        };
+        await db.saveTemplate(newTemplate);
+        await get().loadTemplates();
+    },
+
+    removeTemplate: async (id) => {
+        await db.deleteTemplate(id);
+        await get().loadTemplates();
+    },
+
 
     startSession: (blockId) => {
         const { settings, today } = get();

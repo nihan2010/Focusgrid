@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Check, X, Info } from 'lucide-react';
 import { useStore } from '../stores/useStore';
 import type { Block } from '../types';
-
+import { generateBlock } from '../lib/schema';
 interface AddBlockProps {
     targetDay: string;
     onCancel: () => void;
@@ -44,23 +44,27 @@ export const AddBlock: React.FC<AddBlockProps> = ({ targetDay, onCancel }) => {
         const finalDuration = calculateTotalDuration();
         if (finalDuration <= 0) return;
 
-        const newBlock: Block = {
+        const config: any = {
             id: crypto.randomUUID(),
             title: title.trim(),
             type,
             durationMinutes: finalDuration,
             completed: false,
-            ...(isMarathonBlock && {
-                isMarathonBlock: true,
-                pomodorosCount,
-                workDuration,
-                breakDuration
-            }),
-            ...(subjects.length > 0 && { subjects }),
-            ...(notes.length > 0 && { notes })
         };
 
-        // Note: activeTab target in App.tsx passes string like 'add-block:today' -> targetDay='today'
+        if (isMarathonBlock) {
+            config.pomodoro = {
+                cycles: pomodorosCount,
+                workDuration,
+                breakDuration
+            };
+        }
+
+        if (subjects.length > 0) config.chapters = subjects;
+        if (notes.length > 0) config.notes = notes;
+
+        const newBlock = generateBlock(config);
+
         const validTarget = targetDay === 'tomorrow' ? 'tomorrow' : 'today';
         await addBlock(validTarget, newBlock);
 

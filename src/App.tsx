@@ -9,10 +9,11 @@ import { AddBlock } from './components/AddBlock';
 import { FocusOverlay } from './components/FocusOverlay';
 import { AlarmPopup } from './components/AlarmPopup';
 import { NotificationPermissionModal } from './components/NotificationPermissionModal';
+import { OnboardingModal } from './components/OnboardingModal';
 import { notificationManager } from './lib/notificationManager';
 
 function App() {
-  const { isInitialized, initStore, globalTick, checkMidnightTransition, recalculateDailyProgress, sessionRestoreMessage, dismissRestoreMessage } = useStore();
+  const { isInitialized, settings, initStore, globalTick, checkMidnightTransition, recalculateDailyProgress, sessionRestoreMessage, dismissRestoreMessage } = useStore();
   const [activeTab, setActiveTab] = useState('today');
   const [showNotifModal, setShowNotifModal] = useState(false);
 
@@ -118,6 +119,15 @@ function App() {
       {/* One-time Notification Permission Modal */}
       {showNotifModal && (
         <NotificationPermissionModal onDone={() => setShowNotifModal(false)} />
+      )}
+
+      {/* Extreme First-Launch Onboarding */}
+      {(isInitialized && !settings.hasSeenOnboarding) && (
+        <OnboardingModal onComplete={() => {
+          // It updates store internally, component will naturally unmount via reactivity
+          // Then we might ask for notifs next
+          if (!notificationManager.hasBeenAsked()) setShowNotifModal(true);
+        }} />
       )}
 
       <Layout activeTab={activeTab} setActiveTab={setActiveTab}>

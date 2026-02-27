@@ -51,6 +51,8 @@ export interface AppSettings {
     vibrationEnabled: boolean;
     focusTreeEnabled: boolean;
     floatingTimerEnabled: boolean;
+    hasSeenOnboarding?: boolean;
+    lastBackupDate?: string;
     alarms: {
         workStart: AlarmConfig;
         workEnd: AlarmConfig;
@@ -60,4 +62,10 @@ export interface AppSettings {
         blockEnd: AlarmConfig;
         dayComplete: AlarmConfig;
     }
+}
+
+export interface Template {
+    id: string;
+    name: string;
+    blocks: Block[];
 }
