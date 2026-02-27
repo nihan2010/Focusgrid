@@ -47,7 +47,7 @@
   body {
     background-color: var(--surface-bg);
     color: var(--surface-text);
-    @apply antialiased;
+    @apply antialiased overflow-x-hidden;
     margin: 0;
     padding: 0;
     min-height: 100vh;

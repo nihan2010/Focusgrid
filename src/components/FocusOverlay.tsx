@@ -251,18 +251,18 @@ export const FocusOverlay: React.FC = () => {
                 {!isMarathonActive && <div className="mb-6" />}
 
                 {/* Giant Timer */}
-                <div className="text-[clamp(5rem,18vmin,12rem)] leading-none font-bold text-white tabular-nums tracking-tighter mb-8 md:mb-12 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+                <div className="text-[clamp(4.5rem,15vw,10rem)] leading-none font-black text-white tabular-nums tracking-tighter mb-8 md:mb-12 drop-shadow-[0_0_40px_rgba(255,255,255,0.1)]">
                     {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
                 </div>
 
                 {/* Tree Graphic Container */}
-                <div className="w-[clamp(8rem,20vmin,16rem)] h-[clamp(8rem,20vmin,16rem)] relative mb-8 md:mb-12">
+                <div className="w-[clamp(6rem,18vw,14rem)] h-[clamp(6rem,18vw,14rem)] relative mb-8 md:mb-12">
                     <FocusTree progress={treeProgress} isDamaged={(today?.skippedSessions ?? 0) > 0} />
                 </div>
 
-                <p className="text-gray-500 text-sm md:text-base">
+                <p className="text-gray-500 text-xs md:text-base px-6">
                     {isMarathonActive
-                        ? (marathonState?.phase === 'work' ? "Stay focused. The tree is growing." : "Rest up. Prepare for the next sprint.")
+                        ? (marathonState?.phase === 'work' ? "Stay focused. Your grit manifests growth." : "Rest up. Prepare for the next sprint.")
                         : "Stay focused. The tree is growing."}
                 </p>
 

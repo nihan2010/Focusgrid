@@ -33,7 +33,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
 
     return (
         <div
-            className="flex h-screen w-full font-sans relative"
+            className="flex flex-col lg:flex-row h-screen w-full font-sans relative overflow-x-hidden"
             style={{ backgroundColor: 'var(--surface-bg)', color: 'var(--surface-text)' }}
         >
             {/* Audio Failsafe Banner */}
@@ -51,9 +51,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
                 </div>
             )}
 
-            {/* Sidebar Navigation */}
+            {/* Sidebar Navigation - Desktop only */}
             <aside
-                className="w-60 flex-shrink-0 flex flex-col items-center py-8 transition-colors duration-300"
+                className="hidden lg:flex w-64 flex-shrink-0 flex-col items-center py-8 transition-colors duration-300"
                 style={{
                     borderRight: '1px solid var(--surface-border)',
                     backgroundColor: isDark ? 'rgba(18,18,21,0.6)' : 'rgba(255,255,255,0.7)',
@@ -79,7 +79,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
                             <button
                                 key={item.id}
                                 onClick={() => setActiveTab(item.id)}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200"
                                 style={{
                                     backgroundColor: isActive
                                         ? isDark ? 'rgba(255,255,255,0.08)' : 'rgba(16,185,129,0.08)'
@@ -91,7 +91,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
                                 }}
                             >
                                 <Icon
-                                    size={18}
+                                    size={20}
                                     style={{ color: isActive ? '#10b981' : 'var(--surface-muted)' }}
                                 />
                                 <span className="text-sm">{item.label}</span>
@@ -101,9 +101,42 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
                 </nav>
             </aside>
 
+            {/* Bottom Nav - Mobile only */}
+            <nav
+                className="lg:hidden fixed bottom-0 inset-x-0 z-[60] flex items-center justify-around px-2 py-3 border-t border-white/5 bg-black/40 backdrop-blur-2xl"
+                style={{ borderTopColor: 'var(--surface-border)' }}
+            >
+                {navItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = activeTab === item.id || (activeTab.startsWith('add-block') && item.id === 'today');
+                    return (
+                        <button
+                            key={item.id}
+                            onClick={() => setActiveTab(item.id)}
+                            className="flex flex-col items-center gap-1.5 px-3 py-1 rounded-lg transition-all duration-200"
+                            style={{
+                                color: isActive ? '#10b981' : 'var(--surface-muted)',
+                            }}
+                        >
+                            <Icon size={24} />
+                            <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
+                        </button>
+                    );
+                })}
+            </nav>
+
+            {/* Header (Logo) - Mobile only */}
+            <div className="lg:hidden h-16 flex items-center justify-between px-6 border-b border-white/5 bg-black/20 backdrop-blur-lg shrink-0"
+                style={{ borderBottomColor: 'var(--surface-border)' }}>
+                <div className="flex items-center gap-2.5">
+                    <img src="/logo.png" alt="Logo" className="w-7 h-7 rounded-lg" />
+                    <span className="font-black tracking-tight text-white uppercase text-sm">FocusGrid</span>
+                </div>
+            </div>
+
             {/* Main Content */}
-            <main className="flex-1 relative overflow-y-auto min-h-0 flex flex-col">
-                <div className="flex-1 p-8 max-w-5xl mx-auto w-full flex flex-col relative z-10">
+            <main className="flex-1 relative overflow-y-auto min-h-0 flex flex-col pb-24 lg:pb-0">
+                <div className="flex-1 p-4 md:p-8 max-w-6xl mx-auto w-full flex flex-col relative z-10">
                     {children}
                 </div>
                 <Footer />

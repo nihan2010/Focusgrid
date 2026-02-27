@@ -107,18 +107,18 @@ export const BlockItem: React.FC<BlockItemProps> = ({ block, isToday, isExpanded
                     {isToday && !isCompleted && !block.isMarathonBlock && (
                         <button
                             onClick={handleToggleSession}
-                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors
-                                ${isActive && timerRunning ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30' : 'bg-accent-500/20 text-accent-500 hover:bg-accent-500/30'}
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg active:scale-95
+                                ${isActive && timerRunning ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-accent-500/20 text-accent-500 border border-accent-500/30'}
                             `}
                         >
-                            {isActive && timerRunning ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-1" />}
+                            {isActive && timerRunning ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
                         </button>
                     )}
 
                     <button
                         onClick={markCompleted}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors
-                            ${isCompleted ? 'text-accent-500 bg-accent-500/20' : 'text-gray-500 hover:text-gray-300 hover:bg-white/10'}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors border active:scale-95
+                            ${isCompleted ? 'text-accent-500 bg-accent-500/20 border-accent-500/30' : 'text-gray-500 border-white/10 hover:text-gray-300 hover:bg-white/10'}
                         `}
                         title="Mark complete"
                     >

@@ -31,26 +31,26 @@ export const Today: React.FC<{ setActiveTab?: (t: string) => void }> = ({ setAct
 
     return (
         <div className="flex flex-col flex-1 min-h-0 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <header className="flex justify-between items-end pb-4 border-b border-white/10 shrink-0">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight text-white mb-2">{isMarathon ? 'Marathon Mode' : 'Today'}</h2>
-                    <p className="text-gray-400">Execution is the only metric.</p>
+            <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 pb-4 border-b border-white/10 shrink-0">
+                <div className="flex-1">
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white mb-1">{isMarathon ? 'Marathon Mode' : 'Today'}</h2>
+                    <p className="text-sm text-gray-400">Execution is the only metric.</p>
                 </div>
-                <div className="text-right">
-                    <p className="text-4xl font-black text-accent-500">
+                <div className="flex flex-col md:text-right">
+                    <p className="text-3xl md:text-4xl font-black text-accent-500">
                         {today.completedPomodoros} <span className="text-xl text-gray-500">/ {isMarathon ? '14' : '∞'}</span>
                     </p>
-                    <p className="text-sm font-medium text-gray-400 uppercase tracking-widest mt-1">Pomodoros</p>
+                    <p className="text-[10px] md:text-sm font-bold text-gray-400 uppercase tracking-widest mt-0.5">Pomodoros</p>
                 </div>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 pb-8">
                 {/* Timeline block */}
-                <div className="lg:col-span-2 glass-panel p-6 flex flex-col min-h-0">
-                    <div className="flex justify-between items-center mb-6 shrink-0">
+                <div className="lg:col-span-2 glass-panel p-4 md:p-6 flex flex-col min-h-0">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 shrink-0">
                         <h3 className="text-lg font-semibold text-white">Execution Timeline</h3>
                         <button
-                            className="text-sm bg-accent-500 text-charcoal-950 font-bold px-4 py-2 rounded-lg hover:bg-accent-600 transition-colors flex items-center gap-2"
+                            className="w-full sm:w-auto text-sm bg-accent-500 text-charcoal-950 font-bold px-6 h-12 rounded-xl hover:bg-accent-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-accent-500/20 active:scale-95 transition-transform"
                             onClick={() => setActiveTab?.('add-block:today')}
                         >
                             <Grid size={18} />
