@@ -1,21 +1,26 @@
-export interface Block {
-    id: string;
-    type: 'Study' | 'Break' | 'Fitness' | 'Prayer' | 'Review';
-    title: string;
-    durationMinutes: number;
-    color?: string;
-    completed?: boolean;
-    // Marathon properties
-    startTime?: string; // HH:mm format
-    endTime?: string;   // HH:mm format
-    pomodorosCount?: number;
-    workDuration?: number; // default 50
-    breakDuration?: number; // default 10
-    subjects?: string[];
-    notes?: string[];
-    isMarathonBlock?: boolean;
+export type BlockType = 'study' | 'break' | 'fitness' | 'prayer' | 'custom';
+export type TimingMode = 'pomodoro' | 'time-range' | 'manual';
+
+export interface PomodoroConfig {
+    workDuration: number;
+    breakDuration: number;
+    cycles: number;
 }
 
+export interface Block {
+    id: string;
+    type: BlockType;
+    mode: TimingMode;
+    title: string;
+    durationMinutes?: number;
+    color?: string;
+    completed?: boolean;
+    startTime?: string;
+    endTime?: string;
+    pomodoroConfig?: PomodoroConfig;
+    subjects?: string[];
+    notes?: string[];
+}
 export type TreeStage = 'seed' | 'sprout' | 'young' | 'strong' | 'full';
 
 export interface DayRecord {

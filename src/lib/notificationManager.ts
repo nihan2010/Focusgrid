@@ -93,7 +93,11 @@ class NotificationManager {
             });
         } else if ('Notification' in window && Notification.permission === 'granted') {
             // Fallback for browsers without SW support
-            new Notification(title, finalOptions);
+            try {
+                new Notification(title, finalOptions);
+            } catch (e) {
+                console.warn('[FocusGrid] Direct Notification fallback blocked by browser', e);
+            }
         }
     }
 

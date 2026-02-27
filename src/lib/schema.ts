@@ -7,10 +7,14 @@ export const PomodoroSchema = z.object({
     cycles: z.number().min(1)
 });
 
+export const BlockTypeSchema = z.enum(['study', 'break', 'fitness', 'prayer', 'custom', 'Study', 'Break', 'Fitness', 'Prayer', 'Review']);
+export const TimingModeSchema = z.enum(['pomodoro', 'time-range', 'manual']);
+
 export const BlockSchema = z.object({
     id: z.string().optional(),
     title: z.string().min(1, "Title is required"),
-    type: z.enum(['Study', 'Break', 'Fitness', 'Prayer', 'Review', 'study', 'break', 'fitness', 'prayer', 'review']),
+    type: BlockTypeSchema.optional(),
+    mode: TimingModeSchema.optional(),
     startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid HH:mm format").optional(),
     endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid HH:mm format").optional(),
     chapters: z.array(z.string()).optional(),
@@ -36,14 +40,35 @@ export type DayRecordConfig = z.infer<typeof DayRecordConfigSchema>;
 
 /**
  * Pure function to generate a validated Block from a BlockConfig.
- * This completely isolates block logic from UI components.
+ * Handles migration from old flat formats to the new mode/type structure.
  */
 export function generateBlock(config: BlockConfig): Block {
-    // Normalize type string
-    const typeStr = (config.type.charAt(0).toUpperCase() + config.type.slice(1).toLowerCase()) as Block['type'];
-    const isMarathon = !!config.pomodoro || typeStr === 'Study';
+    // Default fallbacks for legacy or incomplete data
+    let finalType: Block['type'] = 'study';
+    if (config.type) {
+        const raw = config.type.toLowerCase();
+        if (['study', 'break', 'fitness', 'prayer', 'custom'].includes(raw)) {
+            finalType = raw as Block['type'];
+        } else {
+            // handle old 'Review' as custom maybe
+            finalType = raw === 'review' ? 'custom' : 'study';
+        }
+    }
 
-    let finalDuration = config.durationMinutes || 0;
+    // Determine the timing mode
+    let finalMode: Block['mode'] = config.mode || 'manual';
+    if (!config.mode) {
+        // Fallback heuristics
+        if (config.pomodoro || finalType === 'study') {
+            finalMode = 'pomodoro';
+        } else if (config.startTime && config.endTime) {
+            finalMode = 'time-range';
+        } else {
+            finalMode = 'manual';
+        }
+    }
+
+    let finalDuration = config.durationMinutes;
 
     // Calculate final duration from cycles if pomodoro config is provided
     if (config.pomodoro) {
@@ -53,34 +78,27 @@ export function generateBlock(config: BlockConfig): Block {
         finalDuration = totalWork + totalBreak;
     }
 
-    if (finalDuration <= 0) {
-        finalDuration = 50; // Fallback
-    }
-
     const block: Block = {
         id: config.id || crypto.randomUUID(),
         title: config.title,
-        type: typeStr,
-        durationMinutes: finalDuration,
+        type: finalType,
+        mode: finalMode,
         completed: config.completed || false,
     };
 
+    if (finalDuration !== undefined) block.durationMinutes = finalDuration;
     if (config.startTime) block.startTime = config.startTime;
     if (config.endTime) block.endTime = config.endTime;
     if (config.chapters && config.chapters.length > 0) block.subjects = config.chapters;
     if (config.notes && config.notes.length > 0) block.notes = config.notes;
 
-    if (isMarathon && config.pomodoro) {
-        block.isMarathonBlock = true;
-        block.pomodorosCount = config.pomodoro.cycles;
-        block.workDuration = config.pomodoro.workDuration;
-        block.breakDuration = config.pomodoro.breakDuration;
-    } else if (typeStr === 'Study') {
-        // Fallback for legacy generic study blocks
-        block.isMarathonBlock = true;
-        block.pomodorosCount = 1;
-        block.workDuration = finalDuration;
-        block.breakDuration = 0;
+    if (finalMode === 'pomodoro') {
+        if (config.pomodoro) {
+            block.pomodoroConfig = config.pomodoro;
+        } else {
+            // Give it a generic pomodoro config if they insisted on pomodoro mode but provided none
+            block.pomodoroConfig = { workDuration: finalDuration || 50, breakDuration: 10, cycles: 1 };
+        }
     }
 
     return block;

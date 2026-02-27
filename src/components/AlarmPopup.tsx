@@ -14,11 +14,25 @@ export const AlarmPopup: React.FC = () => {
 
                 // Show browser notification
                 if (Notification.permission === 'granted') {
-                    new Notification(activeAlarmInfo.title, {
-                        body: activeAlarmInfo.subtitle,
-                        icon: '/vite.svg',
-                        requireInteraction: true
-                    });
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.ready.then(reg => {
+                            reg.showNotification(activeAlarmInfo.title, {
+                                body: activeAlarmInfo.subtitle,
+                                icon: '/vite.svg',
+                                requireInteraction: true
+                            }).catch(e => console.warn('SW notification error:', e));
+                        });
+                    } else {
+                        try {
+                            new Notification(activeAlarmInfo.title, {
+                                body: activeAlarmInfo.subtitle,
+                                icon: '/vite.svg',
+                                requireInteraction: true
+                            });
+                        } catch (e) {
+                            console.warn('Fallback notification blocked by browser', e);
+                        }
+                    }
                 }
             }
 
