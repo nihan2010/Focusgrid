@@ -3,10 +3,16 @@ import { useStore } from '../stores/useStore';
 import { useTheme } from '../lib/useTheme';
 import { Sun, Moon, Monitor } from 'lucide-react';
 import { DataManagement } from './DataManagement';
+import { Documentation } from './Documentation';
 
 export const Settings: React.FC = () => {
     const { settings, updateSettings } = useStore();
     const { theme, setTheme } = useTheme();
+    const [viewDoc, setViewDoc] = React.useState(false);
+
+    if (viewDoc) {
+        return <Documentation onBack={() => setViewDoc(false)} />;
+    }
 
     return (
         <div className="flex flex-col flex-1 min-h-0 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -17,6 +23,20 @@ export const Settings: React.FC = () => {
 
             <div className="glass-panel p-6 w-full max-w-4xl mx-auto overflow-hidden">
                 <div className="space-y-6">
+
+                    {/* Resources & Docs Links */}
+                    <div className="pb-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--surface-border)' }}>
+                        <div>
+                            <h3 className="font-semibold" style={{ color: 'var(--surface-text)' }}>Focus System References</h3>
+                            <p className="text-sm text-gray-400">Read the manual on JSON APIs and advanced features.</p>
+                        </div>
+                        <button
+                            onClick={() => setViewDoc(true)}
+                            className="px-4 py-2 border border-white/10 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-white font-medium transition-all"
+                        >
+                            View Documentation
+                        </button>
+                    </div>
 
                     {/* Theme Selector */}
                     <div className="pb-6 border-b" style={{ borderColor: 'var(--surface-border)' }}>

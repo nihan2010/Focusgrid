@@ -13,7 +13,7 @@ import { OnboardingModal } from './components/OnboardingModal';
 import { notificationManager } from './lib/notificationManager';
 
 function App() {
-  const { isInitialized, settings, initStore, globalTick, checkMidnightTransition, recalculateDailyProgress, sessionRestoreMessage, dismissRestoreMessage } = useStore();
+  const { isInitialized, initStore, globalTick, checkMidnightTransition, recalculateDailyProgress, sessionRestoreMessage, dismissRestoreMessage } = useStore();
   const [activeTab, setActiveTab] = useState('today');
   const [showNotifModal, setShowNotifModal] = useState(false);
 
@@ -122,11 +122,13 @@ function App() {
       )}
 
       {/* Extreme First-Launch Onboarding */}
-      {(isInitialized && !settings.hasSeenOnboarding) && (
+      {(isInitialized && !localStorage.getItem('focusgridOnboarded')) && (
         <OnboardingModal onComplete={() => {
-          // It updates store internally, component will naturally unmount via reactivity
+          localStorage.setItem('focusgridOnboarded', 'true');
           // Then we might ask for notifs next
           if (!notificationManager.hasBeenAsked()) setShowNotifModal(true);
+          // force re-render so it hides
+          setDiagnostic({ ...diagnostic });
         }} />
       )}
 
@@ -134,7 +136,7 @@ function App() {
         {activeTab === 'today' && <Today setActiveTab={(t) => {
           // Show notification modal before first session if not asked yet
           // Using revised hasBeenAsked which checks 'notifAsked'
-          if (!notificationManager.hasBeenAsked()) setShowNotifModal(true);
+          if (localStorage.getItem('focusgridOnboarded') && !notificationManager.hasBeenAsked()) setShowNotifModal(true);
           setActiveTab(t);
         }} />}
         {activeTab === 'tomorrow' && <Tomorrow setActiveTab={setActiveTab} />}
